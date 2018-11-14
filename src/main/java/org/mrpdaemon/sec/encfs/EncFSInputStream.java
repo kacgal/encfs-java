@@ -206,6 +206,12 @@ public class EncFSInputStream extends FilterInputStream {
 			throw new IOException("Negative skip count");
 		}
 
+		long quickSkip = (n / this.blockSize - Math.min(n % this.blockSize, 1)) * this.blockSize;
+		if (quickSkip > 0) {
+			bytesSkipped += this.in.skip(quickSkip);
+			blockNum += bytesSkipped / this.blockSize;
+        }
+
 		while (bytesSkipped < n) {
 			toSkip = (int) Math.min(n - bytesSkipped,
 					config.getEncryptedFileBlockSizeInBytes());
